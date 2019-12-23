@@ -14,8 +14,8 @@
 #include <QtGui/QFontDatabase>
 #include "pointcloudglwidget.h"
 #include <QDebug>
-
 #include "interface.h"
+#include "mslider.h"
 
 Interface::Interface(KinectSampleThread & t1,
                      KinectSampleThread & t2):
@@ -31,29 +31,37 @@ Interface::Interface(KinectSampleThread & t1,
     rgb->setPixmap(QPixmap::fromImage(rgbImage));
     depth->setPixmap(QPixmap::fromImage(depthImage));
     pcWidget = new PointCloudGLWidget(mt1,mt2,fs);
-//    QWidget *container = QWidget::createWindowContainer(&pcWidget);
 
     //! [1]
     QWidget *widget = new QWidget;
     QHBoxLayout *hLayout = new QHBoxLayout(widget);
-    QVBoxLayout *vLayout = new QVBoxLayout();
 
-    QTabWidget *tWidget = new QTabWidget();
-    hLayout->addWidget(tWidget,0,Qt::AlignLeft);
+    QTabWidget *displayTab = new QTabWidget();
     QWidget *rgbdCard = new QWidget;
-    tWidget->addTab(rgbdCard,"RGB and depth");
+    displayTab->addTab(rgbdCard,"RGB and depth");
     QHBoxLayout *rgbdLayout = new QHBoxLayout(rgbdCard);
     rgbdLayout->addWidget(rgb, 0,Qt::AlignLeft);
     rgbdLayout->addWidget(depth,0,Qt::AlignLeft);
-    tWidget->addTab(pcWidget,"Point Cloud");
-    hLayout->addLayout(vLayout);
+    displayTab->addTab(pcWidget,"Point Cloud");
+
+    QTabWidget *panel = new QTabWidget();
+    QWidget *settingCard = new QWidget;
+    QVBoxLayout *settingLayout = new QVBoxLayout(settingCard);
+    panel->addTab(settingCard,"Settings");
+
+    hLayout->addWidget(displayTab,0,Qt::AlignLeft);
+    hLayout->addWidget(panel,0,Qt::AlignLeft);
     //! [1]
 
     widget->setWindowTitle(QStringLiteral("Multi-Kinect data sampler"));
 
     checkDevButton = new QPushButton();
     checkDevButton->setText(QString("checkout active device"));
-
+    mSlider *xRotateSlider = new mSlider("rotate x",0,100,this);
+    mSlider *yRotateSlider = new mSlider("rotate y",0,100,this);
+    mSlider *zRotateSlider = new mSlider("rotate z",0,100,this);
+    mSlider *xTranslateSlider = new mSlider("translate x",0,100,this);
+    
 
     //! [4]
     QComboBox *themeList = new QComboBox(widget);
@@ -104,19 +112,24 @@ Interface::Interface(KinectSampleThread & t1,
     //! [4]
 
     //! [5]
-    vLayout->addWidget(checkDevButton,0,Qt::AlignTop);
-    vLayout->addWidget(labelButton, 0, Qt::AlignTop);
-    vLayout->addWidget(cameraButton, 0, Qt::AlignTop);
-    vLayout->addWidget(itemCountButton, 0, Qt::AlignTop);
-    vLayout->addWidget(backgroundCheckBox);
-    vLayout->addWidget(gridCheckBox);
-    vLayout->addWidget(smoothCheckBox, 0, Qt::AlignTop);
-    vLayout->addWidget(new QLabel(QStringLiteral("Change theme")));
-    vLayout->addWidget(themeList);
-    vLayout->addWidget(new QLabel(QStringLiteral("Adjust shadow quality")));
-    vLayout->addWidget(shadowQuality);
-    vLayout->addWidget(new QLabel(QStringLiteral("Change font")));
-    vLayout->addWidget(fontList, 1, Qt::AlignTop);
+    settingLayout->addWidget(checkDevButton,0,Qt::AlignTop);
+    settingLayout->addWidget(xRotateSlider->self,0,Qt::AlignTop);
+    settingLayout->addWidget(yRotateSlider->self,0,Qt::AlignTop);
+    settingLayout->addWidget(zRotateSlider->self,0,Qt::AlignTop);
+    settingLayout->addWidget(xTranslateSlider->self,0,Qt::AlignTop);
+
+    settingLayout->addWidget(labelButton, 0, Qt::AlignTop);
+    settingLayout->addWidget(cameraButton, 0, Qt::AlignTop);
+    settingLayout->addWidget(itemCountButton, 0, Qt::AlignTop);
+    settingLayout->addWidget(backgroundCheckBox);
+    settingLayout->addWidget(gridCheckBox);
+    settingLayout->addWidget(smoothCheckBox, 0, Qt::AlignTop);
+    settingLayout->addWidget(new QLabel(QStringLiteral("Change theme")));
+    settingLayout->addWidget(themeList);
+    settingLayout->addWidget(new QLabel(QStringLiteral("Adjust shadow quality")));
+    settingLayout->addWidget(shadowQuality);
+    settingLayout->addWidget(new QLabel(QStringLiteral("Change font")));
+    settingLayout->addWidget(fontList, 1, Qt::AlignTop);
     //! [5]
 
     //! [6]
@@ -131,21 +144,13 @@ Interface::Interface(KinectSampleThread & t1,
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(readDepthFrame()));
     QObject::connect(checkDevButton,SIGNAL(clicked()),this,SLOT(checkoutDevice()));
     QObject::connect(timer,SIGNAL(timeout()),pcWidget,SLOT(update()));
+    QObject::connect(xRotateSlider->slider,SIGNAL(valueChanged(int)),this,SLOT(setxRotateValue(int)));
+    QObject::connect(yRotateSlider->slider,SIGNAL(valueChanged(int)),this,SLOT(setyRotateValue(int)));
+    QObject::connect(zRotateSlider->slider,SIGNAL(valueChanged(int)),this,SLOT(setzRotateValue(int)));
+    QObject::connect(xTranslateSlider->slider,SIGNAL(valueChanged(int)),this,SLOT(setxTranslateValue(int)));
 
-//    pcWidget->show();
 
-//    if(viz_rgbdepth==0)
-//    {
-//        rgb->hide();
-//        depth->hide();
-//        pcWidget->show();
-//    }
-//    else if(viz_rgbdepth==1)
-//    {
-//        rgb->show();
-//        depth->show();
-//        pcWidget->hide();
-//    }
+
     widget->show();
 
 }
@@ -194,21 +199,22 @@ void Interface::checkoutDevice()
     }
 }
 
-void Interface::checkoutVizModal()
+void Interface::setxRotateValue(int value)
 {
-    qDebug("enter checkout viz");
-    if(viz_rgbdepth==1)
-    {
-        viz_rgbdepth=0;
-        rgb->hide();
-        depth->hide();
-        pcWidget->show();
-    }
-    else if(viz_rgbdepth==0)
-    {
-        viz_rgbdepth=1;
-        rgb->show();
-        depth->show();
-        pcWidget->hide();
-    }
+    pcWidget->setxRotate(value);
+}
+
+void Interface::setyRotateValue(int value)
+{
+    pcWidget->setyRotate(value);
+}
+
+void Interface::setzRotateValue(int value)
+{
+    pcWidget->setzRotate(value);
+}
+
+void Interface::setxTranslateValue(int value)
+{
+    pcWidget->setxTranslate(value);
 }

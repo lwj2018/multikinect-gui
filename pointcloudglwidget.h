@@ -31,6 +31,16 @@ protected:
     bool fullscreen;
     std::vector<PointCloud> pCloud;
     int deviceId = 0;
+    float xRotate = 0;
+    float yRotate = 0;
+    float zRotate = 0;
+    float xTranslate = 0;
+public:
+    void setxRotate(int rotate);
+    void setyRotate(int rotate);
+    void setzRotate(int rotate);
+    void setxTranslate(int value);
+
 
 private:
     float mx = 0,my = 0,ax = 0,ay = 0;

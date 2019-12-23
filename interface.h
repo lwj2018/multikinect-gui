@@ -30,12 +30,15 @@ public:
     KinectSampleThread &mt1;
     KinectSampleThread &mt2;
     int deviceId = 0;
-    int viz_rgbdepth = 0;
 protected slots:
     void readFrame();
     void readDepthFrame();
     void checkoutDevice();
-    void checkoutVizModal();
+    void setxRotateValue(int value);
+    void setyRotateValue(int value);
+    void setzRotateValue(int value);
+    void setxTranslateValue(int value);
+
 
 protected:
     QLabel *rgb = nullptr;

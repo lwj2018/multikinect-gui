@@ -1,6 +1,10 @@
 #include "pointcloudglwidget.h"
 #include<QDebug>
 #include "cameramanager.h"
+#include <algorithm>
+#include <math.h>
+#define max(a,b) ((a) > (b) ? (a) : (b))
+#define min(a,b) ((a) < (b) ? (a) : (b))
 
 PointCloudGLWidget::PointCloudGLWidget(KinectSampleThread & t1,
                                        KinectSampleThread & t2,
@@ -30,9 +34,13 @@ void PointCloudGLWidget::paintGL()
 
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
      glLoadIdentity();
-     glTranslatef(0.0,0.0,2.0);
-     glRotatef(1.5,  1.0,  0.0,  0.0 );
+     glTranslatef(0.0,0.0,xTranslate);
+     glRotatef(xRotate,  1.0,  0.0,  0.0 );
+     glRotatef(yRotate,  0.0,  1.0,  0.0 );
+     glRotatef(zRotate,  0.0,  0.0,  1.0 );
      glBegin(GL_POINTS);
+     float maxx,maxy,maxz;
+     float minx,miny,minz;
      if(deviceId==0)
      {
          for (int i=0;i<mt1.kCloud.size();i++) {
@@ -40,6 +48,12 @@ void PointCloudGLWidget::paintGL()
 //             qDebug("%f,%f,%f,%f,%f,%f,%f",p.r,p.g,p.b,p.x,p.y,p.z);
              glColor3f(p.r/255.0,p.g/255.0,p.b/255.0);
              glVertex3f(p.x,p.y,p.z);
+             maxx = max(maxx,p.x);
+             maxy = max(maxy,p.y);
+             maxz = max(maxz,p.z);
+             minx = min(minx,p.x);
+             miny = min(miny,p.y);
+             minz = min(minz,p.z);
          }
      }
      else if(deviceId==1)
@@ -50,6 +64,8 @@ void PointCloudGLWidget::paintGL()
              glVertex3f(p.x,p.y,p.z);
          }
      }
+//     qDebug("%f %f %f %f %f %f %f",maxx,maxy,maxz,minx,miny,minz);
+
      glEnd();
 
 
@@ -141,7 +157,29 @@ void PointCloudGLWidget::wheelEvent(QWheelEvent* event)
     Camera::Inst()->Zoom(numDegrees);    update();
 }
 
+void PointCloudGLWidget::setxRotate(int rotate)
+{
+    zRotate = (float) rotate;
+    paintGL();
+}
 
+void PointCloudGLWidget::setyRotate(int rotate)
+{
+    yRotate = (float) rotate;
+    paintGL();
+}
+
+void PointCloudGLWidget::setzRotate(int rotate)
+{
+    zRotate = (float) rotate;
+    paintGL();
+}
+
+void PointCloudGLWidget::setxTranslate(int value)
+{
+    xTranslate = (float) value/10.0;
+    paintGL();
+}
 
 
 

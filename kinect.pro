@@ -21,6 +21,7 @@ SOURCES += \
     kinectsamplethread.cpp \
     main.cpp \
     pointcloudglwidget.cpp \
+    mslider.cpp \
     utils.cpp
 
 HEADERS += \
@@ -29,6 +30,7 @@ HEADERS += \
     kinectsamplethread.h \
     pointcloud.h \
     pointcloudglwidget.h \
+    mslider.h \
     utils.h
 
 FORMS +=
