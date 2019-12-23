@@ -20,7 +20,6 @@ SOURCES += \
     interface.cpp \
     kinectsamplethread.cpp \
     main.cpp \
-    mainwindow.cpp \
     pointcloudglwidget.cpp \
     utils.cpp
 
@@ -28,13 +27,11 @@ HEADERS += \
     cameramanager.h \
     interface.h \
     kinectsamplethread.h \
-    mainwindow.h \
     pointcloud.h \
     pointcloudglwidget.h \
     utils.h
 
-FORMS += \
-    mainwindow.ui
+FORMS +=
 
 LIBS += -L$$PWD/../../freenect2/lib/ -lfreenect2
 INCLUDEPATH += $$PWD/../../freenect2/include
