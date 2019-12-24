@@ -35,8 +35,8 @@ HEADERS += \
 
 FORMS +=
 
-LIBS += -L$$PWD/../../freenect2/lib/ -lfreenect2
-INCLUDEPATH += $$PWD/../../freenect2/include
+LIBS += -L$$PWD/3rd_party/freenect2/lib/ -lfreenect2
+INCLUDEPATH += $$PWD/3rd_party/freenect2/include
 DEPENDPATH += $$PWD/../../freenect2/include
 
 # Default rules for deployment.

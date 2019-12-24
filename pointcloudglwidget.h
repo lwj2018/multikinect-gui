@@ -13,9 +13,11 @@ class PointCloudGLWidget: public  QOpenGLWidget
 public:
     PointCloudGLWidget(KinectSampleThread & t1,
                        KinectSampleThread & t2,
+                       KinectSampleThread & t3,
                        bool fs);
     KinectSampleThread &mt1;
     KinectSampleThread &mt2;
+    KinectSampleThread &mt3;
     void setDeviceId(int id);
 
 protected:

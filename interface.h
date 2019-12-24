@@ -26,14 +26,16 @@ class Interface: public QMainWindow
     Q_OBJECT
 public:
     Interface(KinectSampleThread & t1,
-              KinectSampleThread & t2);
+              KinectSampleThread & t2,
+              KinectSampleThread & t3);
     KinectSampleThread &mt1;
     KinectSampleThread &mt2;
-    int deviceId = 0;
+    KinectSampleThread &mt3;
+    int mDeviceId = 0;
 protected slots:
     void readFrame();
     void readDepthFrame();
-    void checkoutDevice();
+    void setActiveDevice(int deviceId);
     void setxRotateValue(int value);
     void setyRotateValue(int value);
     void setzRotateValue(int value);

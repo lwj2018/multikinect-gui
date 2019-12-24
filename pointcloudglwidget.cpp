@@ -8,8 +8,9 @@
 
 PointCloudGLWidget::PointCloudGLWidget(KinectSampleThread & t1,
                                        KinectSampleThread & t2,
+                                       KinectSampleThread & t3,
                                        bool fs):
-    mt1(t1),mt2(t2)
+    mt1(t1),mt2(t2),mt3(t3)
 {
       setGeometry( 0, 0, 640, 480 );
       fullscreen = fs;

@@ -37,9 +37,13 @@ int main(int argc, char *argv[])
 
     std::string serial1("142057235047");
     std::string serial2("303029434147");
+    std::string serial3("002138734747");
 
-    KinectSampleThread t1(serial1);
+
+//    KinectSampleThread t1(serial1);
     KinectSampleThread t2(serial2);
+    KinectSampleThread t3(serial3);
+
 
 //    QTimer* timer = new QTimer();
 //    timer->start(20);
@@ -52,7 +56,7 @@ int main(int argc, char *argv[])
 //    MainWindow w(t1,t2);
 //    w.show();
 
-    Interface gui(t1,t2);
+    Interface gui(t2,t2,t3);
 
     return a.exec();
 }

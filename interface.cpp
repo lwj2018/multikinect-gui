@@ -18,8 +18,9 @@
 #include "mslider.h"
 
 Interface::Interface(KinectSampleThread & t1,
-                     KinectSampleThread & t2):
-    mt1(t1),mt2(t2)
+                     KinectSampleThread & t2,
+                     KinectSampleThread & t3):
+    mt1(t1),mt2(t2),mt3(t3)
 {
 
     bool fs = false;
@@ -30,7 +31,7 @@ Interface::Interface(KinectSampleThread & t1,
     depth = new QLabel();
     rgb->setPixmap(QPixmap::fromImage(rgbImage));
     depth->setPixmap(QPixmap::fromImage(depthImage));
-    pcWidget = new PointCloudGLWidget(mt1,mt2,fs);
+    pcWidget = new PointCloudGLWidget(mt1,mt2,mt3,fs);
 
     //! [1]
     QWidget *widget = new QWidget;
@@ -55,8 +56,12 @@ Interface::Interface(KinectSampleThread & t1,
 
     widget->setWindowTitle(QStringLiteral("Multi-Kinect data sampler"));
 
-    checkDevButton = new QPushButton();
-    checkDevButton->setText(QString("checkout active device"));
+
+    QComboBox *devList = new QComboBox(widget);
+    devList->addItem(QStringLiteral("device 1"));
+    devList->addItem(QStringLiteral("device 2"));
+    devList->addItem(QStringLiteral("device 3"));
+    devList->setCurrentIndex(0);
     mSlider *xRotateSlider = new mSlider("rotate x",0,100,this);
     mSlider *yRotateSlider = new mSlider("rotate y",0,100,this);
     mSlider *zRotateSlider = new mSlider("rotate z",0,100,this);
@@ -112,7 +117,7 @@ Interface::Interface(KinectSampleThread & t1,
     //! [4]
 
     //! [5]
-    settingLayout->addWidget(checkDevButton,0,Qt::AlignTop);
+    settingLayout->addWidget(devList,0,Qt::AlignTop);
     settingLayout->addWidget(xRotateSlider->self,0,Qt::AlignTop);
     settingLayout->addWidget(yRotateSlider->self,0,Qt::AlignTop);
     settingLayout->addWidget(zRotateSlider->self,0,Qt::AlignTop);
@@ -142,12 +147,12 @@ Interface::Interface(KinectSampleThread & t1,
 
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(readFrame()));
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(readDepthFrame()));
-    QObject::connect(checkDevButton,SIGNAL(clicked()),this,SLOT(checkoutDevice()));
     QObject::connect(timer,SIGNAL(timeout()),pcWidget,SLOT(update()));
     QObject::connect(xRotateSlider->slider,SIGNAL(valueChanged(int)),this,SLOT(setxRotateValue(int)));
     QObject::connect(yRotateSlider->slider,SIGNAL(valueChanged(int)),this,SLOT(setyRotateValue(int)));
     QObject::connect(zRotateSlider->slider,SIGNAL(valueChanged(int)),this,SLOT(setzRotateValue(int)));
     QObject::connect(xTranslateSlider->slider,SIGNAL(valueChanged(int)),this,SLOT(setxTranslateValue(int)));
+    QObject::connect(devList,SIGNAL(currentIndexChanged(int)),this,SLOT(setActiveDevice(int)));
 
 
 
@@ -160,13 +165,17 @@ void Interface::readFrame()
     int a =  width;
     int b =  height;
     QImage img;
-    if(deviceId==0)
+    if(mDeviceId==0)
     {
         img = mt1.rgbImage.scaled(a,b);
     }
-    else if (deviceId==1)
+    else if (mDeviceId==1)
     {
         img = mt2.rgbImage.scaled(a,b);
+    }
+    else if (mDeviceId==2)
+    {
+        img = mt3.rgbImage.scaled(a,b);
     }
      rgb->setPixmap(QPixmap::fromImage(img));
 }
@@ -176,27 +185,24 @@ void Interface::readDepthFrame()
     int a =  width;
     int b =  height;
     QImage img;
-    if(deviceId==0)
+    if(mDeviceId==0)
     {
         img = mt1.depthImage.scaled(a,b);
     }
-    else if (deviceId==1)
+    else if (mDeviceId==1)
     {
         img = mt2.depthImage.scaled(a,b);
+    }
+    else if (mDeviceId==2)
+    {
+        img = mt3.depthImage.scaled(a,b);
     }
      depth->setPixmap(QPixmap::fromImage(img));
 }
 
-void Interface::checkoutDevice()
+void Interface::setActiveDevice(int deviceId)
 {
-    if(deviceId==0)
-    {
-        deviceId=1;
-    }
-    else if (deviceId==1)
-    {
-        deviceId=0;
-    }
+    mDeviceId = deviceId;
 }
 
 void Interface::setxRotateValue(int value)
